@@ -16,7 +16,6 @@
  */
 
 "use strict";
-const readline = require('readline');
 
 class trip {
   constructor(persons) {
@@ -56,52 +55,110 @@ class trip {
   }
 }
 
-// let tr = new trip(3);
+var trips = [];
+const states = {
+  init: 0,
+  keybin: 1,
+  filein: 2,
+  test: 3,
+  output: 4,
+  default: NaN,
+};
+var state = states.init;
 
-// tr.expense = 15;
-// tr.expense = 15.01;
-// tr.expense = 3;
-// tr.expense = 3.01;
-
-// console.log(tr.expenses);
-// console.log(tr.rest);
-
+const readline = require('readline');
 const rl = readline.createInterface({
   input: process.stdin,
-  output: process.stdout
+  output: process.stdout,
+  prompt: '> '
 });
-var trips = [];
+const print_menu = () => {
+  console.log(`Menu, digite: 
+    1: Ingresar desde teclado 
+    2: Leer archivo
+    3: Calcular valores a distribuir`);
+}
+const print_inper = () => {
+  console.log('Ingrese numero de personas que viajaron: ');
+}
 
-const insertTrips = () => {
-  let temp = 1;
-  do {
-    rl.question('Ingrese numero de personas que viajaron: ', (num_persons) => {
-      console.log(num_persons);
-      if (num_persons > 0) {
-        trips.push(new trip(num_persons));
-        temp = num_persons;
-      } else if (num_persons < 0){
-        console.log('Numero de personas debe ser mayor o igual a 0')
-        temp = 1;
-      }
-    });
-  } while (temp);
-} 
+rl.prompt();
+print_menu();
 
-const menu = (option) => {
-  console.log(option);
-  switch (option) {
+const subState_keybin_menu = (opt) => {
+  switch (opt) {
     case '1':
-      insertTrips();
-      rl.close();
+      print_inper();
+      state = states.keybin;
       break;
     case '2':
+      state = states.filein;
+      break;
+    case '3':
+      state = states.output;
+      break;
+    case 'probar':
+      state = states.test;
+    case 'salir':
+      rl.close();
       break;
     default:
-      console.log('Opcion invalida');
+      console.log(`'${opt}': Opcion invalida`);
   }
 }
 
-rl.question(`Menu, digite: 
-  1: Ingresar desde teclado 
-  2: Leer archivo \n\r`, menu);
+const subStates = {
+  init: 0,
+  insertExpenses: 1, 
+  default: NaN,
+};
+var subState = subStates.init;
+
+const subState_keybin = (opt) => {
+  switch (subState) {
+    case subStates.init:
+      let num_persons = Number(opt);
+      if (num_persons > 0) {
+        trips.push(new trip(num_persons));
+        subState_keybin.countExp = 0;
+        subState = subStates.insertExpenses;
+        console.log('Ingrese gastos por cada persona: ');
+      } else if (num_persons < 0){
+        console.log('Numero de personas debe ser mayor o igual a 0');
+      } else {
+        state = states.init;
+        print_menu();
+      }
+      break;
+    case subStates.insertExpenses:
+      if (subState_keybin.countExp < trips[trips.length-1].persons && opt >= 0) {
+        trips[trips.length-1].expense = Number(opt);
+        subState_keybin.countExp++;
+        console.log(`Registrado gasto ${subState_keybin.countExp}`);
+        if (subState_keybin.countExp == trips[trips.length-1].persons) {
+          print_inper();
+          subState = subStates.init;
+        }
+      }
+      break;
+    default:
+  }
+}
+
+rl.on('line', (line) => {
+  switch (state) {
+    case states.init:
+      subState_keybin_menu(line);
+      break;
+    case states.keybin:
+      subState_keybin(line);
+      break;
+    case states.init:
+      break;
+    default:
+  }
+  rl.prompt();
+}).on('close', () => {
+  console.log('Cerrado!');
+  process.exit(0);
+});
