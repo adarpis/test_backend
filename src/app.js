@@ -15,16 +15,71 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+"use strict";
 const readline = require('readline');
+
+class trip {
+  constructor(persons) {
+    if (persons > 0) {
+      this.persons = persons;
+      this.expenses = [];
+      return true;
+    } else {
+      console.log("ERROR: The number of persons should be more or equal than 1");
+      return false;
+    }
+  }
+  set expense(val) {
+    if (this.expenses.length<this.persons) {
+      this.expenses.push(val);
+    } else {
+      console.log("WARNING: You are trying to insert more expenses than were assigned")
+    }
+  }
+  get rest() {
+    return this.calcRest();
+  }
+  calcRest(){
+    let sum = 0;
+    for (let val of this.expenses) {
+      sum += val
+    }
+    let avg = sum/this.expenses.length;
+    sum = 0;
+    for (let val of this.expenses) {
+      let diff = avg-val;
+      if (diff>=0) {
+        sum += diff;
+      }
+    }
+    return sum.toFixed(2);
+  }
+}
+
+// let tr = new trip(3);
+
+// tr.expense = 15;
+// tr.expense = 15.01;
+// tr.expense = 3;
+// tr.expense = 3.01;
+
+// console.log(tr.expenses);
+// console.log(tr.rest);
 
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
 });
 
-rl.question('What do you think of Node.js? ', (answer) => {
-  // TODO: Log the answer in a database
-  console.log(`Thank you for your valuable feedback: ${answer}`);
-
+const menu = (option) => {
+  switch (option) {
+    case 1:
+    break;
+    case 2:
+    break;
+    default:
+  }
   rl.close();
-});
+}
+
+rl.question('Menu: Digite \n\r1: Ingresar desde teclado \n\r2: Leer archivo \n\r', menu(answer));
