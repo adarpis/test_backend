@@ -48,7 +48,7 @@ class trip {
     sum = 0;
     for (let val of this.expenses) {
       let diff = avg-val;
-      if (diff>=0) {
+      if (diff>0) {
         sum += diff;
       }
     }
@@ -70,16 +70,38 @@ const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
 });
+var trips = [];
+
+const insertTrips = () => {
+  let temp = 1;
+  do {
+    rl.question('Ingrese numero de personas que viajaron: ', (num_persons) => {
+      console.log(num_persons);
+      if (num_persons > 0) {
+        trips.push(new trip(num_persons));
+        temp = num_persons;
+      } else if (num_persons < 0){
+        console.log('Numero de personas debe ser mayor o igual a 0')
+        temp = 1;
+      }
+    });
+  } while (temp);
+} 
 
 const menu = (option) => {
+  console.log(option);
   switch (option) {
-    case 1:
-    break;
-    case 2:
-    break;
+    case '1':
+      insertTrips();
+      rl.close();
+      break;
+    case '2':
+      break;
     default:
+      console.log('Opcion invalida');
   }
-  rl.close();
 }
 
-rl.question('Menu: Digite \n\r1: Ingresar desde teclado \n\r2: Leer archivo \n\r', menu(answer));
+rl.question(`Menu, digite: 
+  1: Ingresar desde teclado 
+  2: Leer archivo \n\r`, menu);
