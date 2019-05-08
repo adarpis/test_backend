@@ -183,25 +183,7 @@ const subState_keybin = (opt) => {
 const subState_filein = (filein) => {
   const fs = require('fs');
   
-  try {
-    var file = fs.createReadStream(filein);
-  }
-  catch(err) {
-    console.log(err.message);
-    return false;
-  }
-  
-  const rlf = readline.createInterface({
-      input: file,
-      crlfDelay: Infinity
-  });
-
-  rlf.on('line', (line) => {
-    console.log(`Line from file: ${line}`);
-    if (line.trim() == '') {
-     rlf.close();
-    }
-  });
+  console.log(String(fs.readFileSync( filein )));
 
   state = states.init;
   print_menu();
