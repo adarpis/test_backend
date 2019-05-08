@@ -73,17 +73,54 @@ const rl = readline.createInterface({
   prompt: '> '
 });
 const print_menu = () => {
-  console.log(`Menu, digite: 
+  console.log(`
+  Menu, digite: 
     1: Ingresar desde teclado 
     2: Leer archivo
-    3: Calcular valores a distribuir`);
+    3: Calcular valores a distribuir
+    probar: Carga y calcula para valores de prueba (Cuidado: Borra valores cargados)
+    salir: Cierra el programa`);
 }
 const print_inper = () => {
-  console.log('Ingrese numero de personas que viajaron: ');
+  console.log('Ingrese numero de personas que viajaron (0 para menu principal): ');
 }
 
 rl.prompt();
 print_menu();
+
+const subState_output = () => {
+  console.log('Se debe repartir: ');
+  for ( let tr of trips ) {
+    console.log(tr.rest);
+  }
+  state = states.init;
+  print_menu();
+}
+
+const subState_test = () => {
+  const tests = [[10,20,30],
+                 [15,15.01,3,3.01], 
+                 [15,14.99,3,2.99], 
+                 [999.1,999.1,999,999.1], 
+                 [100.01,99.99,99.99], 
+                ];
+  console.log('Test: ');
+  trips = [];
+  for ( let t of tests ) {
+    console.log(`Cargando viaje con : ${t}`);
+    trips.push(new trip(t.length));
+    for ( let v of t ) {
+      console.log(v);
+      trips[trips.length-1].expense = v;
+    }
+  }
+  subState_output();
+  trips = [];
+}
+
+const subState_filein = () => {
+
+}
 
 const subState_keybin_menu = (opt) => {
   switch (opt) {
@@ -92,13 +129,14 @@ const subState_keybin_menu = (opt) => {
       state = states.keybin;
       break;
     case '2':
-      state = states.filein;
+      subState_filein();
       break;
     case '3':
-      state = states.output;
+      subState_output();
       break;
     case 'probar':
-      state = states.test;
+      subState_test();
+      break;
     case 'salir':
       rl.close();
       break;
@@ -117,7 +155,7 @@ var subState = subStates.init;
 const subState_keybin = (opt) => {
   switch (subState) {
     case subStates.init:
-      let num_persons = Number(opt);
+      let num_persons = Math.round(opt);
       if (num_persons > 0) {
         trips.push(new trip(num_persons));
         subState_keybin.countExp = 0;
@@ -153,7 +191,11 @@ rl.on('line', (line) => {
     case states.keybin:
       subState_keybin(line);
       break;
-    case states.init:
+    case states.filein:
+      break;
+    case states.output:
+      break;
+    case states.test:
       break;
     default:
   }
