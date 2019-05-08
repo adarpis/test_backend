@@ -97,6 +97,17 @@ const subState_output = () => {
   print_menu();
 }
 
+const load_data = (data) => {
+  for ( let t of data ) {
+    console.log(`Cargando viaje con : ${t}`);
+    trips.push(new trip(t.length));
+    for ( let v of t ) {
+      console.log(v);
+      trips[trips.length-1].expense = v;
+    }
+  }
+}
+
 const subState_test = () => {
   const tests = [[10,20,30],
                  [15,15.01,3,3.01], 
@@ -106,14 +117,7 @@ const subState_test = () => {
                 ];
   console.log('Test: ');
   trips = [];
-  for ( let t of tests ) {
-    console.log(`Cargando viaje con : ${t}`);
-    trips.push(new trip(t.length));
-    for ( let v of t ) {
-      console.log(v);
-      trips[trips.length-1].expense = v;
-    }
-  }
+  load_data(tests);
   subState_output();
   trips = [];
 }
@@ -125,7 +129,7 @@ const subState_keybin_menu = (opt) => {
       state = states.keybin;
       break;
     case '2':
-      console.log('Ingrese nombre archivo: (ejm: sample.txt)')
+      console.log('Ingrese nombre archivo: (ejm: sample.json en formato JSON)')
       state = states.filein
       break;
     case '3':
@@ -182,12 +186,16 @@ const subState_keybin = (opt) => {
 
 const subState_filein = (filein) => {
   const fs = require('fs');
-  
-  console.log(String(fs.readFileSync( filein )));
+  try {
+    const fobj = JSON.parse(fs.readFileSync( filein , 'utf8' ));
+    load_data(fobj.tests);
+  }
+  catch (err) {
+    console.log(err);
+  }
 
   state = states.init;
   print_menu();
-  return true;
 }
 
 rl.on('line', (line) => {
