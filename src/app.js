@@ -118,10 +118,6 @@ const subState_test = () => {
   trips = [];
 }
 
-const subState_filein = () => {
-
-}
-
 const subState_keybin_menu = (opt) => {
   switch (opt) {
     case '1':
@@ -129,7 +125,8 @@ const subState_keybin_menu = (opt) => {
       state = states.keybin;
       break;
     case '2':
-      subState_filein();
+      console.log('Ingrese nombre archivo: (ejm: sample.txt)')
+      state = states.filein
       break;
     case '3':
       subState_output();
@@ -183,15 +180,44 @@ const subState_keybin = (opt) => {
   }
 }
 
+const subState_filein = (filein) => {
+  const fs = require('fs');
+  
+  try {
+    var file = fs.createReadStream(filein);
+  }
+  catch(err) {
+    console.log(err.message);
+    return false;
+  }
+  
+  const rlf = readline.createInterface({
+      input: file,
+      crlfDelay: Infinity
+  });
+
+  rlf.on('line', (line) => {
+    console.log(`Line from file: ${line}`);
+    if (line.trim() == '') {
+     rlf.close();
+    }
+  });
+
+  state = states.init;
+  print_menu();
+  return true;
+}
+
 rl.on('line', (line) => {
   switch (state) {
     case states.init:
-      subState_keybin_menu(line);
+      subState_keybin_menu(line.trim());
       break;
     case states.keybin:
-      subState_keybin(line);
+      subState_keybin(line.trim());
       break;
     case states.filein:
+      subState_filein(line.trim());
       break;
     case states.output:
       break;
